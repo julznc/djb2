@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<title>DJB2 Hash</title>
+</head>
+<body>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script>
+"use strict";
+$(document).ready(function() {
+  const DEFAULT_SEED = BigInt(5381);
+  var seed = DEFAULT_SEED;
+  let djb2 = function(str) {
+    var hash = seed;
+    str.split('').forEach(function(c) { hash = BigInt.asUintN(64, (hash * 33n) + BigInt(c.charCodeAt())); });
+    return hash.toString(16);
+  };
+  $("#seed").val(seed.toString(10));
+  $("#seed").on("change keyup paste", function() {
+    var tmp = parseInt($("#seed").val());
+    seed =  isNaN(tmp) ? DEFAULT_SEED : BigInt(tmp);
+    $("#input").trigger("change");
+  });
+  $("#hexonly").on("change", function() { $("#input").trigger("change"); });
+  $("#input").on("change keyup paste", function() {
+    var results = "";
+    $("#input").val().split('\n').forEach(function(v) {
+      var str = v;
+      if ($("#hexonly").prop("checked")) { str = str.replace(/[^A-Fa-f0-9]/g, "").toLowerCase(); }
+      if (str && str.length) { results += str + ($("#hexonly").prop("checked") ? '-' : '\t') + djb2(str) + '\n'; }
+    });
+    $("#output").val(results);
+  });
+});
+</script>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-6 offset-sm-3">
+      <h4 class="text-center"><a href="http://www.cse.yorku.ca/~oz/hash.html" target="_blank">DJB2 Hash</a></h4>
+      <form class="border border-light rounded">
+        <div class="form-group row">
+          <label class="col-sm-1 col-form-label">Seed:</label>
+          <div class="col-sm-3"><input type="text" class="form-control" id="seed" pattern="[0-9]*" required></div>
+          <div class="col-sm-3">
+            <div class="form-check pt-2">
+              <input type="checkbox" class="form-check-input" id="hexonly">
+              <label class="form-check-label" for="hexonly">Hex Input</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-form-label">Input:</label>
+          <textarea class="form-control text-monospace" id="input" rows="5"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="col-form-label">Output:</label>
+         <textarea class="form-control text-monospace" id="output" rows="5" readonly></textarea>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<footer style="position:absolute; bottom:0; width:100%;">
+  <div class="container text-right">
+    <p><small><a href="https://github.com/julznc" target="_blank" rel="author">yus</a></small></p>
+  </div>
+</footer>
+</body>
+</html>
